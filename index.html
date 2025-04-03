@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>📷 Camera 权限测试</title>
     <style>
         body {
@@ -52,16 +52,32 @@
     <button onclick="startCamera()">再次尝试访问摄像头</button>
 
     <script>
-        const OS = /iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'iOS'
-            : /Android/i.test(navigator.userAgent) ? 'Android'
-                : 'Other';
+        function detectOS() {
+            const ua = navigator.userAgent;
+            if (/Windows NT/i.test(ua)) return 'Windows';
+            if (/Macintosh/i.test(ua)) return 'macOS';
+            if (/Linux/i.test(ua)) return 'Linux';
+            if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS';
+            if (/Android/i.test(ua)) return 'Android';
+            return 'Unknown';
+        }
 
-        const Browser = /CriOS/i.test(navigator.userAgent) ? 'Chrome iOS'
-            : /Safari/i.test(navigator.userAgent) && !/CriOS/i.test(navigator.userAgent) ? 'Safari'
-                : /Chrome/i.test(navigator.userAgent) ? 'Chrome Android'
-                    : /MicroMessenger/i.test(navigator.userAgent) ? 'WeChat'
-                        : 'Unknown';
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            if (/Edg/i.test(ua)) return 'Edge';
+            if (/OPR|Opera/i.test(ua)) return 'Opera';
+            if (/CriOS/i.test(ua)) return 'Chrome iOS';
+            if (/Chrome/i.test(ua)) return 'Chrome';
+            if (/FxiOS/i.test(ua)) return 'Firefox iOS';
+            if (/Firefox/i.test(ua)) return 'Firefox';
+            if (/Safari/i.test(ua) && !/Chrome|CriOS|FxiOS|Edg/i.test(ua)) return 'Safari';
+            if (/MicroMessenger/i.test(ua)) return 'WeChat';
+            if (/QQBrowser/i.test(ua)) return 'QQBrowser';
+            return 'Unknown';
+        }
 
+        const OS = detectOS();
+        const Browser = detectBrowser();
         const supportsPermissionAPI = !!(navigator.permissions && navigator.permissions.query);
 
         document.getElementById('os').innerText = OS;
