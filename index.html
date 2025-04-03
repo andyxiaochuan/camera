@@ -54,11 +54,17 @@
     <script>
         function detectOS() {
             const ua = navigator.userAgent;
-            if (/Windows NT/i.test(ua)) return 'Windows';
-            if (/Macintosh/i.test(ua)) return 'macOS';
-            if (/Linux/i.test(ua)) return 'Linux';
+
             if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS';
             if (/Android/i.test(ua)) return 'Android';
+            if (/Windows NT/i.test(ua)) return 'Windows';
+            if (/Macintosh/i.test(ua)) {
+                // iOS13+ iPad/iPhone 可能伪装成 macOS
+                if ('ontouchend' in document) return 'iOS';
+                return 'macOS';
+            }
+            if (/Linux/i.test(ua)) return 'Linux';
+
             return 'Unknown';
         }
 
