@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浏览器权限校验</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .permission-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .granted {
+            background-color: #e6ffe6;
+        }
+
+        .denied {
+            background-color: #ffe6e6;
+        }
+
+        .prompt {
+            background-color: #ffffe6;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>浏览器权限状态检查</h1>
+    <div id="permissions-status"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const statusContainer = document.getElementById('permissions-status');
+
+            // 检查浏览器是否支持权限API
+            if (!navigator.permissions) {
+                statusContainer.innerHTML = '<div class="permission-item denied">您的浏览器不支持权限API</div>';
+                return;
+            }
+
+            // 要检查的权限列表
+            const permissionsToCheck = [
+                { name: 'geolocation', description: '地理位置' },
+                { name: 'notifications', description: '通知' },
+                { name: 'camera', description: '摄像头' },
+                { name: 'microphone', description: '麦克风' },
+                { name: 'clipboard-read', description: '剪贴板读取' },
+                { name: 'clipboard-write', description: '剪贴板写入' }
+            ];
+
+            // 检查每个权限状态
+            for (const perm of permissionsToCheck) {
+                try {
+                    const status = await navigator.permissions.query({ name: perm.name });
+                    let statusClass = '';
+                    let statusText = '';
+
+                    if (status.state === 'granted') {
+                        statusClass = 'granted';
+                        statusText = '已授权';
+                    } else if (status.state === 'denied') {
+                        statusClass = 'denied';
+                        statusText = '已拒绝';
+                    } else {
+                        statusClass = 'prompt';
+                        statusText = '需要询问';
+                    }
+
+                    statusContainer.innerHTML += `
+                        <div class="permission-item ${statusClass}">
+                            <strong>${perm.description}</strong>: ${statusText}
+                        </div>
+                    `;
+                } catch (error) {
+                    statusContainer.innerHTML += `
+                        <div class="permission-item denied">
+                            <strong>${perm.description}</strong>: 不支持此权限 (${error.message})
+                        </div>
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
