@@ -1,95 +1,134 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>浏览器权限校验</title>
+    <meta charset="utf-8">
+    <title>📷 Camera 权限测试</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            font-family: sans-serif;
+            padding: 2em;
+            max-width: 600px;
+            margin: auto;
         }
 
-        .permission-item {
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        video {
+            width: 100%;
+            margin-top: 1em;
+            background: #000;
         }
 
-        .granted {
-            background-color: #e6ffe6;
+        .status {
+            margin: 1em 0;
         }
 
-        .denied {
-            background-color: #ffe6e6;
+        .tip {
+            color: red;
+            font-weight: bold;
         }
 
-        .prompt {
-            background-color: #ffffe6;
+        button {
+            padding: 0.6em 1.2em;
+            font-size: 16px;
+            margin-top: 1em;
         }
     </style>
 </head>
 
 <body>
-    <h1>浏览器权限状态检查</h1>
-    <div id="permissions-status"></div>
+    <h1>📷 Camera 权限测试 Demo</h1>
+
+    <div class="status">
+        <p><strong>操作系统：</strong><span id="os">检测中...</span></p>
+        <p><strong>浏览器：</strong><span id="browser">检测中...</span></p>
+        <p><strong>是否支持权限 API：</strong><span id="perm-support">检测中...</span></p>
+        <p><strong>浏览器权限状态：</strong><span id="browser-perm">检测中...</span></p>
+        <p><strong>实际摄像头访问：</strong><span id="access-result">检测中...</span></p>
+    </div>
+
+    <div class="tip" id="tip"></div>
+
+    <video id="video" autoplay playsinline></video>
+    <button onclick="startCamera()">再次尝试访问摄像头</button>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const statusContainer = document.getElementById('permissions-status');
+        const OS = /iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'iOS'
+            : /Android/i.test(navigator.userAgent) ? 'Android'
+                : 'Other';
 
-            // 检查浏览器是否支持权限API
-            if (!navigator.permissions) {
-                statusContainer.innerHTML = '<div class="permission-item denied">您的浏览器不支持权限API</div>';
-                return;
-            }
+        const Browser = /CriOS/i.test(navigator.userAgent) ? 'Chrome iOS'
+            : /Safari/i.test(navigator.userAgent) && !/CriOS/i.test(navigator.userAgent) ? 'Safari'
+                : /Chrome/i.test(navigator.userAgent) ? 'Chrome Android'
+                    : /MicroMessenger/i.test(navigator.userAgent) ? 'WeChat'
+                        : 'Unknown';
 
-            // 要检查的权限列表
-            const permissionsToCheck = [
-                { name: 'geolocation', description: '地理位置' },
-                { name: 'notifications', description: '通知' },
-                { name: 'camera', description: '摄像头' },
-                { name: 'microphone', description: '麦克风' },
-                { name: 'clipboard-read', description: '剪贴板读取' },
-                { name: 'clipboard-write', description: '剪贴板写入' }
-            ];
+        const supportsPermissionAPI = !!(navigator.permissions && navigator.permissions.query);
 
-            // 检查每个权限状态
-            for (const perm of permissionsToCheck) {
+        document.getElementById('os').innerText = OS;
+        document.getElementById('browser').innerText = Browser;
+        document.getElementById('perm-support').innerText = supportsPermissionAPI ? '✅ 支持' : '❌ 不支持';
+
+        async function checkCameraStatus() {
+            let browserPermission = 'unknown';
+            if (supportsPermissionAPI) {
                 try {
-                    const status = await navigator.permissions.query({ name: perm.name });
-                    let statusClass = '';
-                    let statusText = '';
+                    const result = await navigator.permissions.query({ name: 'camera' });
+                    browserPermission = result.state;
+                } catch {
+                    browserPermission = '查询失败';
+                }
+            } else {
+                browserPermission = '无法查询';
+            }
+            document.getElementById('browser-perm').innerText = browserPermission;
 
-                    if (status.state === 'granted') {
-                        statusClass = 'granted';
-                        statusText = '已授权';
-                    } else if (status.state === 'denied') {
-                        statusClass = 'denied';
-                        statusText = '已拒绝';
+            let accessResult = '';
+            let tip = '';
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('video').srcObject = stream;
+                stream.getTracks().forEach(t => t.stop());
+                accessResult = '✅ 成功获取';
+            } catch (err) {
+                if (err.name === 'NotAllowedError') {
+                    accessResult = '❌ 被拒绝';
+                    if (browserPermission === 'granted') {
+                        // 系统权限未给
+                        if (OS === 'iOS') {
+                            tip = Browser.includes('Safari') ?
+                                '请前往 设置 > Safari > 网站权限 > 相机 开启权限' :
+                                '请前往 设置 > Chrome > 相机，开启权限';
+                        } else if (OS === 'Android') {
+                            tip = '请前往 系统设置 > 应用 > 权限管理 中为浏览器开启摄像头权限';
+                        } else {
+                            tip = '系统已限制摄像头，请手动开启权限';
+                        }
                     } else {
-                        statusClass = 'prompt';
-                        statusText = '需要询问';
+                        tip = '请在浏览器弹窗中点击“允许”授权摄像头';
                     }
-
-                    statusContainer.innerHTML += `
-                        <div class="permission-item ${statusClass}">
-                            <strong>${perm.description}</strong>: ${statusText}
-                        </div>
-                    `;
-                } catch (error) {
-                    statusContainer.innerHTML += `
-                        <div class="permission-item denied">
-                            <strong>${perm.description}</strong>: 不支持此权限 (${error.message})
-                        </div>
-                    `;
+                } else if (err.name === 'NotFoundError') {
+                    accessResult = '📵 无摄像头设备';
+                } else {
+                    accessResult = '⚠️ 发生错误：' + err.message;
                 }
             }
-        });
+
+            document.getElementById('access-result').innerText = accessResult;
+            document.getElementById('tip').innerText = tip;
+        }
+
+        async function startCamera() {
+            const video = document.getElementById('video');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                alert('摄像头调用失败：' + err.message);
+            }
+        }
+
+        // 初始化检测
+        checkCameraStatus();
     </script>
 </body>
 
