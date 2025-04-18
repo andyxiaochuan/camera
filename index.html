@@ -1,1 +1,50 @@
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><html lang=""><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="favicon.ico"><title>mobile-vue-app</title><script defer="defer" src="js/chunk-vendors.98b9b0f1.js"></script><script defer="defer" src="js/app.9579889b.js"></script><link href="css/app.eba7860e.css" rel="stylesheet"></head><body><noscript><strong>We're sorry but mobile-vue-app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div></body></html>
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Face Bodyguard H5 Demo</title>
+    <script src="https://o.alicdn.com/captcha-frontend/aliyunFP/fp.min.js"></script>
+</head>
+
+<body>
+    <h2>Face Bodyguard Demo 页面</h2>
+    <p>点击下方按钮获取设备指纹 Token，并在控制台查看输出。</p>
+
+    <button onclick="startVerification()">开始认证</button>
+
+    <script>
+        let umModule;
+
+        // 初始化 SDK
+        ALIYUN_FP.use('um', (state, um) => {
+            if (state === 'loaded') {
+                umModule = um;
+                um.init({
+                    appKey: 'sgaec7116agsc83944aa357a2066175b',
+                    appName: 'FaceBodyguardDemo',
+                    endpoints: ['https://cloudauth-device.ap-southeast-1.aliyuncs.com']
+                });
+                console.log('[INFO] SDK 初始化成功');
+            } else {
+                console.error('[ERROR] SDK 加载失败');
+            }
+        });
+
+        // 获取设备指纹 token
+        function startVerification() {
+            if (!umModule) {
+                console.error('SDK 尚未初始化完成，请稍候重试');
+                return;
+            }
+
+            const bizId = 'test-biz-id'; // 可选，标识一次业务调用
+            const token = umModule.getToken(bizId);
+            console.log('[INFO] 获取到的 deviceToken:', token);
+
+            // TODO: 将 token 发给服务端验证
+        }
+    </script>
+</body>
+
+</html>
