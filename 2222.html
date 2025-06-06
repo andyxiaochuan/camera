@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Face Bodyguard H5 Demo</title>
+    <script src="https://o.alicdn.com/captcha-frontend/aliyunFP/fp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            margin-top: 1rem;
+            padding: 1rem;
+            font-size: 14px;
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            margin-right: 1rem;
+            padding: 0.5rem 1rem;
+            font-size: 16px;
+        }
+
+        #result {
+            white-space: pre-wrap;
+            background: #f1f1f1;
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>🎯 Face Bodyguard Demo 页面</h2>
+    <p>点击按钮获取设备指纹 Token，并调用服务端接口：</p>
+
+    <button onclick="startVerification()">开始认证</button>
+    <textarea id="tokenOutput" placeholder="设备 token 会显示在这里..." readonly></textarea>
+
+    <div id="result" placeholder="接口返回结果会显示在这里..."></div>
+
+    <script>
+        let umModule;
+
+        ALIYUN_FP.use('um', (state, um) => {
+            if (state === 'loaded') {
+                umModule = um;
+                um.init({
+                    appKey: 'sgaec7116agsc83944aa357a2066175b',
+                    appName: 'FaceBodyguardDemo',
+                    endpoints: ['https://cloudauth-device.ap-southeast-1.aliyuncs.com']
+                });
+                console.log('[INFO] SDK 初始化成功');
+            } else {
+                console.error('[ERROR] SDK 加载失败');
+            }
+        });
+
+        async function startVerification() {
+            if (!umModule) {
+                console.error('SDK 尚未初始化完成，请稍后再试');
+                return;
+            }
+
+            const bizId = '769091348'; // 可选
+            const deviceToken = umModule.getToken(bizId);
+            document.getElementById('tokenOutput').value = deviceToken;
+            console.log('[INFO] 获取到的 deviceToken:', deviceToken);
+
+            // ⚠️ base64 facePicture 应替换为有效数据
+            const facePicture = 'base64encodedfacedata';
+
+            try {
+                // http://10.255.15.11:8080/
+                const response = await fetch('http://10.255.15.11:3000/api/face-guard-risk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        merchantBizId: '0c83ce0101d34eff886b1f7d1cde1235',
+                        bizId: '769091348',
+                        deviceToken,
+                        facePicture
+                    })
+                });
+
+                const result = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error('调用接口出错:', error);
+                document.getElementById('result').textContent = '接口调用失败：' + error.message;
+            }
+        }
+    </script>
+</body>
+
+</html>
