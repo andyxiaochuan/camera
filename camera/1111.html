@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>📷 Camera 权限测试1</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 2em;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        video {
+            width: 100%;
+            margin-top: 1em;
+            background: #000;
+        }
+
+        .status {
+            margin: 1em 0;
+        }
+
+        .tip {
+            color: red;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 0.6em 1.2em;
+            font-size: 16px;
+            margin-top: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>📷 Camera 权限测试 Demo</h1>
+
+    <div class="status">
+        <p><strong>操作系统：</strong><span id="os">检测中...</span></p>
+        <p><strong>浏览器：</strong><span id="browser">检测中...</span></p>
+        <p><strong>是否支持权限 API：</strong><span id="perm-support">检测中...</span></p>
+        <p><strong>浏览器权限状态：</strong><span id="browser-perm">检测中...</span></p>
+        <p><strong>实际摄像头访问：</strong><span id="access-result">检测中...</span></p>
+    </div>
+
+    <div class="tip" id="tip"></div>
+
+    <video id="video" autoplay playsinline></video>
+    <button onclick="startCamera()">再次尝试访问摄像头</button>
+
+    <script>
+        function detectOS() {
+            const ua = navigator.userAgent;
+
+            if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS';
+            if (/Android/i.test(ua)) return 'Android';
+            if (/Windows NT/i.test(ua)) return 'Windows';
+            if (/Macintosh/i.test(ua)) {
+                // iOS13+ iPad/iPhone 可能伪装成 macOS
+                if ('ontouchend' in document) return 'iOS';
+                return 'macOS';
+            }
+            if (/Linux/i.test(ua)) return 'Linux';
+
+            return 'Unknown';
+        }
+
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            if (/Edg/i.test(ua)) return 'Edge';
+            if (/OPR|Opera/i.test(ua)) return 'Opera';
+            if (/CriOS/i.test(ua)) return 'Chrome iOS';
+            if (/Chrome/i.test(ua)) return 'Chrome';
+            if (/FxiOS/i.test(ua)) return 'Firefox iOS';
+            if (/Firefox/i.test(ua)) return 'Firefox';
+            if (/Safari/i.test(ua) && !/Chrome|CriOS|FxiOS|Edg/i.test(ua)) return 'Safari';
+            if (/MicroMessenger/i.test(ua)) return 'WeChat';
+            if (/QQBrowser/i.test(ua)) return 'QQBrowser';
+            return 'Unknown';
+        }
+
+        const OS = detectOS();
+        const Browser = detectBrowser();
+        const supportsPermissionAPI = !!(navigator.permissions && navigator.permissions.query);
+
+        document.getElementById('os').innerText = OS;
+        document.getElementById('browser').innerText = Browser;
+        document.getElementById('perm-support').innerText = supportsPermissionAPI ? '✅ 支持' : '❌ 不支持';
+
+        async function checkCameraStatus() {
+            let browserPermission = 'unknown';
+            if (supportsPermissionAPI) {
+                try {
+                    const result = await navigator.permissions.query({ name: 'camera' });
+                    browserPermission = result.state;
+                } catch {
+                    browserPermission = '查询失败';
+                }
+            } else {
+                browserPermission = '无法查询';
+            }
+            document.getElementById('browser-perm').innerText = browserPermission;
+
+            let accessResult = '';
+            let tip = '';
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('video').srcObject = stream;
+                stream.getTracks().forEach(t => t.stop());
+                accessResult = '✅ 成功获取';
+            } catch (err) {
+                if (err.name === 'NotAllowedError') {
+                    accessResult = '❌ 被拒绝';
+                    if (browserPermission === 'granted') {
+                        // 系统权限未给
+                        if (OS === 'iOS') {
+                            tip = Browser.includes('Safari') ?
+                                '请前往 设置 > Safari > 网站权限 > 相机 开启权限' :
+                                '请前往 设置 > Chrome > 相机，开启权限';
+                        } else if (OS === 'Android') {
+                            tip = '请前往 系统设置 > 应用 > 权限管理 中为浏览器开启摄像头权限';
+                        } else {
+                            tip = '系统已限制摄像头，请手动开启权限';
+                        }
+                    } else {
+                        tip = '请在浏览器弹窗中点击“允许”授权摄像头';
+                    }
+                } else if (err.name === 'NotFoundError') {
+                    accessResult = '📵 无摄像头设备';
+                } else {
+                    accessResult = '⚠️ 发生错误：' + err.message;
+                }
+            }
+
+            document.getElementById('access-result').innerText = accessResult;
+            document.getElementById('tip').innerText = tip;
+        }
+
+        async function startCamera() {
+            const video = document.getElementById('video');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                alert('摄像头调用失败：' + err.message);
+            }
+        }
+
+        // 初始化检测
+        checkCameraStatus();
+    </script>
+</body>
+
+</html>

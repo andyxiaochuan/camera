@@ -1,157 +1,287 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>📷 Camera 权限测试1</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FingerprintJS Pro f2-readable.js Test</title>
     <style>
         body {
-            font-family: sans-serif;
-            padding: 2em;
-            max-width: 600px;
-            margin: auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
-
-        video {
-            width: 100%;
-            margin-top: 1em;
-            background: #000;
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007acc;
+            padding-bottom: 10px;
+        }
         .status {
-            margin: 1em 0;
-        }
-
-        .tip {
-            color: red;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
             font-weight: bold;
         }
-
-        button {
-            padding: 0.6em 1.2em;
-            font-size: 16px;
-            margin-top: 1em;
+        .status.loading {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .output {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .highlight {
+            background-color: #ffeb3b;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .fingerprint-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .fingerprint-item {
+            background: linear-gradient(145deg, #f0f0f0, #e8e8e8);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007acc;
+        }
+        .fingerprint-item h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 14px;
+        }
+        .fingerprint-item .value {
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+        }
+        .console-log {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .console-log .timestamp {
+            color: #68d391;
+        }
+        .console-log .level {
+            font-weight: bold;
+        }
+        .console-log .level.log { color: #63b3ed; }
+        .console-log .level.warn { color: #f6e05e; }
+        .console-log .level.error { color: #fc8181; }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
         }
     </style>
 </head>
-
 <body>
-    <h1>📷 Camera 权限测试 Demo</h1>
+    <div class="container">
+        <h1>🔍 FingerprintJS Pro f2-readable.js - Complete Deobfuscated Test</h1>
+        
+        <div id="status" class="status loading">
+            🔄 Initializing comprehensive browser fingerprinting...
+        </div>
 
-    <div class="status">
-        <p><strong>操作系统：</strong><span id="os">检测中...</span></p>
-        <p><strong>浏览器：</strong><span id="browser">检测中...</span></p>
-        <p><strong>是否支持权限 API：</strong><span id="perm-support">检测中...</span></p>
-        <p><strong>浏览器权限状态：</strong><span id="browser-perm">检测中...</span></p>
-        <p><strong>实际摄像头访问：</strong><span id="access-result">检测中...</span></p>
+        <div class="stats">
+            <div class="stat-item">
+                <span id="execution-time" class="stat-value">--</span>
+                <span class="stat-label">Execution Time (ms)</span>
+            </div>
+            <div class="stat-item">
+                <span id="total-sources" class="stat-value">--</span>
+                <span class="stat-label">Sources Executed</span>
+            </div>
+            <div class="stat-item">
+                <span id="components-count" class="stat-value">--</span>
+                <span class="stat-label">Components Generated</span>
+            </div>
+            <div class="stat-item">
+                <span id="request-id" class="stat-value">--</span>
+                <span class="stat-label">Request ID</span>
+            </div>
+        </div>
+
+        <h2>🖥️ Console Output</h2>
+        <div id="console-output" class="console-log"></div>
+
+        <h2>📊 Generated Request Body</h2>
+        <div id="fingerprint-output" class="output">
+            Waiting for fingerprinting to complete...
+        </div>
+
+        <h2>🎯 Key Fingerprint Components</h2>
+        <div id="fingerprint-summary" class="fingerprint-summary"></div>
     </div>
 
-    <div class="tip" id="tip"></div>
-
-    <video id="video" autoplay playsinline></video>
-    <button onclick="startCamera()">再次尝试访问摄像头</button>
-
     <script>
-        function detectOS() {
-            const ua = navigator.userAgent;
+        // Capture console output
+        const consoleOutput = document.getElementById('console-output');
+        const originalConsole = {
+            log: console.log,
+            warn: console.warn,
+            error: console.error
+        };
 
-            if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS';
-            if (/Android/i.test(ua)) return 'Android';
-            if (/Windows NT/i.test(ua)) return 'Windows';
-            if (/Macintosh/i.test(ua)) {
-                // iOS13+ iPad/iPhone 可能伪装成 macOS
-                if ('ontouchend' in document) return 'iOS';
-                return 'macOS';
-            }
-            if (/Linux/i.test(ua)) return 'Linux';
-
-            return 'Unknown';
+        function addConsoleMessage(level, args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const div = document.createElement('div');
+            div.innerHTML = `<span class="timestamp">[${timestamp}]</span> <span class="level ${level}">${level.toUpperCase()}:</span> ${message}`;
+            consoleOutput.appendChild(div);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
         }
 
-        function detectBrowser() {
-            const ua = navigator.userAgent;
-            if (/Edg/i.test(ua)) return 'Edge';
-            if (/OPR|Opera/i.test(ua)) return 'Opera';
-            if (/CriOS/i.test(ua)) return 'Chrome iOS';
-            if (/Chrome/i.test(ua)) return 'Chrome';
-            if (/FxiOS/i.test(ua)) return 'Firefox iOS';
-            if (/Firefox/i.test(ua)) return 'Firefox';
-            if (/Safari/i.test(ua) && !/Chrome|CriOS|FxiOS|Edg/i.test(ua)) return 'Safari';
-            if (/MicroMessenger/i.test(ua)) return 'WeChat';
-            if (/QQBrowser/i.test(ua)) return 'QQBrowser';
-            return 'Unknown';
+        console.log = function(...args) {
+            originalConsole.log.apply(console, args);
+            addConsoleMessage('log', args);
+        };
+
+        console.warn = function(...args) {
+            originalConsole.warn.apply(console, args);
+            addConsoleMessage('warn', args);
+        };
+
+        console.error = function(...args) {
+            originalConsole.error.apply(console, args);
+            addConsoleMessage('error', args);
+        };
+
+        // Monitor for completion
+        let completionCheckInterval;
+        
+        function checkForCompletion() {
+            // This will be called by the main() function when complete
         }
-
-        const OS = detectOS();
-        const Browser = detectBrowser();
-        const supportsPermissionAPI = !!(navigator.permissions && navigator.permissions.query);
-
-        document.getElementById('os').innerText = OS;
-        document.getElementById('browser').innerText = Browser;
-        document.getElementById('perm-support').innerText = supportsPermissionAPI ? '✅ 支持' : '❌ 不支持';
-
-        async function checkCameraStatus() {
-            let browserPermission = 'unknown';
-            if (supportsPermissionAPI) {
-                try {
-                    const result = await navigator.permissions.query({ name: 'camera' });
-                    browserPermission = result.state;
-                } catch {
-                    browserPermission = '查询失败';
-                }
-            } else {
-                browserPermission = '无法查询';
-            }
-            document.getElementById('browser-perm').innerText = browserPermission;
-
-            let accessResult = '';
-            let tip = '';
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                document.getElementById('video').srcObject = stream;
-                stream.getTracks().forEach(t => t.stop());
-                accessResult = '✅ 成功获取';
-            } catch (err) {
-                if (err.name === 'NotAllowedError') {
-                    accessResult = '❌ 被拒绝';
-                    if (browserPermission === 'granted') {
-                        // 系统权限未给
-                        if (OS === 'iOS') {
-                            tip = Browser.includes('Safari') ?
-                                '请前往 设置 > Safari > 网站权限 > 相机 开启权限' :
-                                '请前往 设置 > Chrome > 相机，开启权限';
-                        } else if (OS === 'Android') {
-                            tip = '请前往 系统设置 > 应用 > 权限管理 中为浏览器开启摄像头权限';
-                        } else {
-                            tip = '系统已限制摄像头，请手动开启权限';
-                        }
-                    } else {
-                        tip = '请在浏览器弹窗中点击“允许”授权摄像头';
+        
+        // Override the main function to capture results
+        let originalMain;
+        setTimeout(() => {
+            if (typeof main === 'function') {
+                originalMain = main;
+                window.main = async function() {
+                    try {
+                        const result = await originalMain();
+                        
+                        // Update status
+                        const statusEl = document.getElementById('status');
+                        statusEl.className = 'status success';
+                        statusEl.innerHTML = '✅ Fingerprinting completed successfully!';
+                        
+                        // Update stats
+                        document.getElementById('execution-time').textContent = 
+                            result.meta.executionTime ? result.meta.executionTime.toFixed(2) : '--';
+                        document.getElementById('total-sources').textContent = 
+                            result.meta.totalSources || '--';
+                        document.getElementById('components-count').textContent = 
+                            Object.keys(result.components || {}).length;
+                        document.getElementById('request-id').textContent = 
+                            result.rid ? result.rid.substring(0, 8) + '...' : '--';
+                        
+                        // Display the request body
+                        document.getElementById('fingerprint-output').textContent = 
+                            JSON.stringify(result, null, 2);
+                        
+                        // Create summary
+                        const summary = document.getElementById('fingerprint-summary');
+                        const components = result.components || {};
+                        
+                        const keyComponents = [
+                            { label: 'User Agent', value: components.ua || 'Not detected', key: 'ua' },
+                            { label: 'Screen Resolution', value: components.sr || 'Not detected', key: 'sr' },
+                            { label: 'Canvas Fingerprint', value: components.cv ? 'Generated' : 'Not available', key: 'cv' },
+                            { label: 'WebGL Support', value: components.wgl ? 'Supported' : 'Not supported', key: 'wgl' },
+                            { label: 'Audio Fingerprint', value: components.af ? 'Generated' : 'Not available', key: 'af' },
+                            { label: 'Fonts Detected', value: components.f ? components.f.length : 'Not detected', key: 'f' },
+                            { label: 'Hardware Concurrency', value: components.cp || 'Not detected', key: 'cp' },
+                            { label: 'Device Memory', value: components.dm || 'Not detected', key: 'dm' },
+                            { label: 'Touch Support', value: components.tc ? 'Yes' : 'No', key: 'tc' },
+                            { label: 'WebGPU Support', value: components.wgpu ? 'Supported' : 'Not supported', key: 'wgpu' },
+                            { label: 'Timezone', value: components.tz !== undefined ? components.tz : 'Not detected', key: 'tz' },
+                            { label: 'Language', value: components.l || 'Not detected', key: 'l' }
+                        ];
+                        
+                        summary.innerHTML = keyComponents.map(comp => `
+                            <div class="fingerprint-item">
+                                <h3>${comp.label}</h3>
+                                <div class="value">${comp.value}</div>
+                            </div>
+                        `).join('');
+                        
+                        return result;
+                    } catch (error) {
+                        const statusEl = document.getElementById('status');
+                        statusEl.className = 'status error';
+                        statusEl.innerHTML = '❌ Fingerprinting failed: ' + error.message;
+                        
+                        document.getElementById('fingerprint-output').textContent = 
+                            'Error: ' + error.message + '\\n\\nStack trace:\\n' + error.stack;
+                        
+                        throw error;
                     }
-                } else if (err.name === 'NotFoundError') {
-                    accessResult = '📵 无摄像头设备';
-                } else {
-                    accessResult = '⚠️ 发生错误：' + err.message;
-                }
+                };
             }
-
-            document.getElementById('access-result').innerText = accessResult;
-            document.getElementById('tip').innerText = tip;
-        }
-
-        async function startCamera() {
-            const video = document.getElementById('video');
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-            } catch (err) {
-                alert('摄像头调用失败：' + err.message);
-            }
-        }
-
-        // 初始化检测
-        checkCameraStatus();
+        }, 100);
+        
+        console.log('🎯 Test page loaded - fingerprinting will start automatically');
     </script>
-</body>
 
-</html>
+    <!-- Load the complete deobfuscated fingerprinting script -->
+    <script src="f2-readable.js"></script>
+</body>
+</html> 
